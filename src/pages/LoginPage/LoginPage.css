@@ -1,0 +1,9 @@
+body {
+    background: linear-gradient(135deg, #b88ae9 0%, #e5eaf3 100%);
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.card {
+    border-radius: 10px;
+}
