@@ -34,10 +34,10 @@ function LoginPage(){
             </div>
             <div className="card-footer bg-transparent text-center border-0 pb-4">
                 <small className="text-muted">
-                    ¿No tienes cuenta? <a href="html/form.html" className="text-decoration-none">Regístrate</a>
+                    ¿No tienes cuenta? <a href="/Register" className="text-decoration-none">Regístrate</a>
                 </small>
                 <br />
-                <a href="html/Recuperar.html" className="text-decoration-none fs-6">
+                <a href="/Forgot" className="text-decoration-none fs-6">
                     ¿Olvidaste tu contraseña?
                 </a>
             </div>
