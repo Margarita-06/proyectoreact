@@ -14,8 +14,24 @@ export default function HeadersExample() {
                             </svg>
                         </a>
                         <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                            <li><a href="/" className="btn btn-primary"> <i>Bienvenido </i></a></li>
+                            <li><a href="/" className="btn btn-primary"> <i> AVEMARIA </i></a></li>
                         </ul>
+                        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                            <div class="container-fluid">
+                                <a class="navbar-brand" href="#"></a>
+                                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                                    <span class="navbar-toggler-icon"></span>
+                                </button>
+                                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                                    <div class="navbar-nav">
+                                        <a class="nav-link active" aria-current="page" href="#">Todo</a>
+                                        <a class="nav-link active" aria-current="page" href="#">Esenciales AVEMARIA</a>
+                                        <a class="nav-link active" aria-current="page"href="#">Nuevo</a>
+                                        <a class="nav-link active" aria-disabled="true">Sobre nosotros</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
                         <div className="text-end">
                             <a href="/" className="btn btn-primary"><i>Cerrar Sesión</i></a>
                         </div>
@@ -24,7 +40,7 @@ export default function HeadersExample() {
             </header>
 
             <div class="d-flex justify-content-center align-items-center vh-100" >
-                <p class="fs-1 text-primary fw-bold"><i>Bienvenido a la interfaz</i></p>
+                <p class="fs-1 text-primary fw-bold"><i> AVEMARIA</i></p>
             </div>
 
         </>

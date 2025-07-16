@@ -1,85 +1,116 @@
-// src/LoginPage.js
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../../firebase";
-import Swal from "sweetalert2";
-
-// Simulación local de usuarios registrados
-const usuarios = [
-  { email: "chus@gmail.com", password: "123" },
-  { email: "maria@correo.com", password: "mar123" },
-  { email: "carlos@correo.com", password: "car123" },
-  { email: "laura@correo.com", password: "lau123" },
-  { email: "andres@correo.com", password: "and123" },
-  { email: "camila@correo.com", password: "cam123" },
-  { email: "david@correo.com", password: "dav123" },
-  { email: "paula@correo.com", password: "Pau123" },
-  { email: "jose@correo.com", password: "jos123" },
-  { email: "valentina@correo.com", password: "val123" },
-];
+import { useState } from 'react';
+import Swal from 'sweetalert2';
+import { auth, googleProvider, db } from '../../firebase';
+import { signInWithEmailAndPassword, fetchSignInMethodsForEmail, linkWithCredential, EmailAuthProvider, signInWithPopup } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import './LoginPage.css';
 
 function LoginPage() {
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSumbit = (e) => {
+  // LOGIN CON EMAIL/PASSWORD
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const user = usuarios.find(
-      (u) => u.email === email && u.password === password
-    );
+    if (!email || !password) {
+      Swal.fire("Campos vacíos", "Por favor llena todos los campos.", "warning");
+      return;
+    }
 
-    if (user) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Opcional: verificar si existe documento en Firestore
+      const userDocRef = doc(db, 'usuarios', user.uid);
+      const userSnap = await getDoc(userDocRef);
+
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        if (data.estado === "Inactivo") {
+          Swal.fire("Acceso denegado", "Tu cuenta está inactiva. Contacta al administrador.", "error");
+          return;
+        }
+      }
+
       Swal.fire({
+        title: "¡Bienvenido!",
+        text: `Sesión iniciada como ${user.email}`,
         icon: "success",
-        title: `¡Bienvenido, ${user.email}!`,
-        text: "Has iniciado sesión correctamente.",
-        confirmButtonColor: "#3085d6",
+        timer: 2000,
+        showConfirmButton: false
       }).then(() => {
-        navigate("/dashboard");
+        window.location.href = "/dashboard";
       });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Acceso denegado",
-        text: "Correo o contraseña incorrectos.",
-        confirmButtonColor: "#d33",
-      });
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Credenciales incorrectas o usuario no existe.", "error");
     }
   };
 
+  // LOGIN CON GOOGLE
   const handleGoogleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      const googleResult = await signInWithPopup(auth, googleProvider);
+      const user = googleResult.user;
+
+      // Verificar si ya existía ese correo con otro método
+      const signInMethods = await fetchSignInMethodsForEmail(auth, user.email);
+
+      if (signInMethods.includes('password')) {
+        // Si existe por password hay que vincularlo
+        const password = await solicitarPassword();
+        if (!password) {
+          Swal.fire("Cancelado", "Operación cancelada.", "info");
+          return;
+        }
+
+        // Crear credential de email/password
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await linkWithCredential(user, credential);
+      }
 
       Swal.fire({
+        title: "¡Bienvenido!",
+        text: `Sesión iniciada con Google: ${user.email}`,
         icon: "success",
-        title: `¡Bienvenido, ${user.displayName || user.email}!`,
-        text: "Has iniciado sesión con Google.",
-        confirmButtonColor: "#3085d6",
+        timer: 2000,
+        showConfirmButton: false
       }).then(() => {
-        navigate("/dashboard");
+        window.location.href = "/dashboard";
       });
+
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error al iniciar sesión con Google",
-        text: "Verifica tu cuenta o intenta de nuevo.",
-        confirmButtonColor: "#d33",
-      });
+      console.error(error);
+      Swal.fire("Error", "No se pudo iniciar sesión con Google.", "error");
     }
   };
 
+  const solicitarPassword = async () => {
+    const result = await Swal.fire({
+      title: "Contraseña requerida",
+      input: "password",
+      inputLabel: "Introduce tu contraseña para vincular cuentas",
+      inputPlaceholder: "Tu contraseña",
+      showCancelButton: true,
+      confirmButtonText: "Vincular",
+      cancelButtonText: "Cancelar"
+    });
+
+    if (result.isConfirmed && result.value) {
+      return result.value;
+    }
+    return null;
+  };
+  
   return (
     <div className="container vh-100 d-flex justify-content-center align-items-center">
       <div className="card shadow-sm" style={{ maxWidth: "400px", width: "100%" }}>
         <div className="card-body p-4">
           <h3 className="card-title text-center mb-4"><i>Iniciar Sesión</i></h3>
-          <form onSubmit={handleSumbit} noValidate>
+          <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="inputEmail" className="form-label"><i>Correo electrónico</i></label>
               <input 
