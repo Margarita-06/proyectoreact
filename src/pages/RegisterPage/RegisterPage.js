@@ -4,8 +4,6 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { db } from '../../firebase';
 import { doc, setDoc } from 'firebase/firestore';
-// import './RegisterPage.css';
-// import logo from '../../assets/brilla.png';
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
